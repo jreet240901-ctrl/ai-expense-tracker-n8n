@@ -1,0 +1,214 @@
+{
+  "name": "Expense Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "01df62ef-654d-496b-b959-4bb8d893adfc",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        112
+      ],
+      "webhookId": "7beb5de7-8c63-4c12-ab07-c4a48be4ff9f"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Analyze the user input and break it down into below mentioned fields:\n- Credit/Debit\n- Type of expense\n- Amount\n- Total\n\nWhen it is a debit subtract from the total amount, when it is a credit add in the total amount. \nOnce you have come up with the output fields add the latest output field to the google sheet.\n\nThe User Input is:  {{ $json.chatInput }}"
+        }
+      },
+      "id": "1d7e01b6-6e7b-49f8-8b3f-3f49af2f205a",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "6c249def-247b-44b5-8cee-1594518c415e",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        336
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 100
+      },
+      "id": "59421d87-df3c-4e05-8182-f699b39c5a78",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        352,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "13ODkokpxC_u4Y6jqhlmNg-9iJTJDx9Unu80v78yYXvY",
+          "cachedResultName": "Expense Tracker"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Credit/Debit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Credit_Debit', '') }}",
+            "Type Of Expense": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Type_Of_Expense', '') }}",
+            "Amount": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Amount', '') }}",
+            "Total": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Total', '') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Credit/Debit",
+              "displayName": "Credit/Debit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type Of Expense",
+              "displayName": "Type Of Expense",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "bb7d90b1-2ae9-4bbe-bab1-c3943e1d6e00",
+      "name": "append_expense_row",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        336
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UJnrDnX5s75Pg1Z4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "append_expense_row": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d11cbb75-7766-4c47-ba37-6b061b6bfa06",
+  "meta": {
+    "instanceId": "87480d226e35ee0b7d48145b1e38a4d666c50eb54596a2564269c4a10415a419"
+  },
+  "nodeGroups": [],
+  "id": "JoQwUOYiH5UXfcSh",
+  "tags": []
+}
